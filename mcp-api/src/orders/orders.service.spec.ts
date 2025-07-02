@@ -14,7 +14,12 @@ describe('OrdersService', () => {
   let bookRepo: jest.Mocked<Repository<Book>>;
 
   beforeEach(async () => {
-    orderRepo = { create: jest.fn(), save: jest.fn(), findAndCount: jest.fn(), findOne: jest.fn() } as any;
+    orderRepo = {
+      create: jest.fn(),
+      save: jest.fn(),
+      findAndCount: jest.fn(),
+      findOne: jest.fn(),
+    } as any;
     itemRepo = { create: jest.fn() } as any;
     bookRepo = { findByIds: jest.fn() } as any;
 
@@ -59,6 +64,8 @@ describe('OrdersService', () => {
 
   it('throws when missing', async () => {
     orderRepo.findOne.mockResolvedValueOnce(null as any);
-    await expect(service.findOne('u1', 'o1')).rejects.toThrow('Order o1 not found');
+    await expect(service.findOne('u1', 'o1')).rejects.toThrow(
+      'Order o1 not found',
+    );
   });
 });

@@ -11,8 +11,14 @@ describe('SeedService', () => {
   let bookRepo: jest.Mocked<Repository<Book>>;
 
   beforeEach(async () => {
-    authorRepo = { create: jest.fn((a) => a), save: jest.fn(async (a) => ({ id: 'a', ...a })) } as any;
-    bookRepo = { create: jest.fn((b) => b), save: jest.fn(async (b) => ({ id: 'b', ...b })) } as any;
+    authorRepo = {
+      create: jest.fn((a) => a),
+      save: jest.fn(async (a) => ({ id: 'a', ...a })),
+    } as any;
+    bookRepo = {
+      create: jest.fn((b) => b),
+      save: jest.fn(async (b) => ({ id: 'b', ...b })),
+    } as any;
     const module = await Test.createTestingModule({
       providers: [
         SeedService,
