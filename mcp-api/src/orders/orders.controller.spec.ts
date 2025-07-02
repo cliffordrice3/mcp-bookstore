@@ -9,7 +9,11 @@ describe('OrdersController', () => {
   let cart: jest.Mocked<CartService>;
 
   beforeEach(async () => {
-    orders = { place: jest.fn(), paginate: jest.fn(), findOne: jest.fn() } as any;
+    orders = {
+      place: jest.fn(),
+      paginate: jest.fn(),
+      findOne: jest.fn(),
+    } as any;
     cart = { get: jest.fn(), clear: jest.fn() } as any;
     const module = await Test.createTestingModule({
       controllers: [OrdersController],

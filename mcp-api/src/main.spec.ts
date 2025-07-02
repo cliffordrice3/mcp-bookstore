@@ -9,7 +9,10 @@ describe('bootstrap', () => {
   it('creates app and listens', async () => {
     const useGlobalPipes = jest.fn();
     const listen = jest.fn();
-    (NestFactory.create as jest.Mock).mockResolvedValue({ useGlobalPipes, listen });
+    (NestFactory.create as jest.Mock).mockResolvedValue({
+      useGlobalPipes,
+      listen,
+    });
 
     await import('./main');
     expect(NestFactory.create).toHaveBeenCalledWith(AppModule);

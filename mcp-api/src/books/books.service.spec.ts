@@ -15,7 +15,10 @@ describe('BooksService', () => {
     } as any;
 
     const module = await Test.createTestingModule({
-      providers: [BooksService, { provide: getRepositoryToken(Book), useValue: repo }],
+      providers: [
+        BooksService,
+        { provide: getRepositoryToken(Book), useValue: repo },
+      ],
     }).compile();
     service = module.get(BooksService);
   });

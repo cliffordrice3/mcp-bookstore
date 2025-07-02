@@ -20,10 +20,14 @@ describe('AuthService', () => {
   });
 
   it('returns token on valid credentials', async () => {
-    await expect(service.login({ username: 'demo', password: 'demo' })).resolves.toEqual({ access_token: 'token' });
+    await expect(
+      service.login({ username: 'demo', password: 'demo' }),
+    ).resolves.toEqual({ access_token: 'token' });
   });
 
   it('throws on invalid credentials', async () => {
-    await expect(service.login({ username: 'bad', password: 'demo' })).rejects.toThrow();
+    await expect(
+      service.login({ username: 'bad', password: 'demo' }),
+    ).rejects.toThrow();
   });
 });
