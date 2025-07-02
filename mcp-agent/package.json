@@ -1,11 +1,12 @@
 {
   "name": "mcp-agent",
   "version": "0.0.1",
-  "description": "Web chat agent using OpenAI to interact with the MCP API",
+  "description": "Web chat agent using LLMs to interact with the MCP API",
   "type": "module",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "node index.js"
+    "build": "tsc -p .",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
