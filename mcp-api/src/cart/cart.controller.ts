@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  DefaultValuePipe,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -25,7 +26,7 @@ export class CartController {
   add(
     @Request() req,
     @Param('bookId') bookId: string,
-    @Param('qty', ParseIntPipe) qty = 1,
+    @Param('qty', new DefaultValuePipe(1), ParseIntPipe) qty: number,
   ) {
     return this.cart.add(req.user.userId, bookId, qty);
   }
