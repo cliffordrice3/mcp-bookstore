@@ -37,8 +37,12 @@ async function callRpc(token, method, params = {}) {
   return data.result;
 }
 
-async function loadTools() {
-  const res = await fetch(`${apiUrl}/.well-known/mcp.json`);
+async function loadTools(token) {
+  const res = await fetch(`${apiUrl}/mcp/tools`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  });
   if (!res.ok) throw new Error('Failed to load MCP schema');
   const schema = await res.json();
   const definitions = [];
@@ -62,7 +66,7 @@ async function loadTools() {
 
 async function main() {
   const token = await login();
-  const tools = await loadTools();
+  const tools = await loadTools(token);
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const app = express();

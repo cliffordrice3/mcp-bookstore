@@ -22,7 +22,7 @@ export class CartController {
     return this.cart.get(req.user.userId);
   }
 
-  @Post(':bookId/:qty?')
+  @Post(':bookId{/:qty}')
   add(
     @Request() req,
     @Param('bookId') bookId: string,

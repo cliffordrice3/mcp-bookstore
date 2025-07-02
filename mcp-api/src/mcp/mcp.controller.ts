@@ -1,9 +1,17 @@
-import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BooksService } from '../books/books.service';
 import { AuthorsService } from '../authors/authors.service';
 import { CartService } from '../cart/cart.service';
 import { OrdersService } from '../orders/orders.service';
+import { MCP_TOOLS } from './mcp.tools';
 
 type IdParam = { id: string };
 
@@ -144,5 +152,10 @@ export class McpController {
         error: { code: e.cause ?? -32603, message: e.message },
       };
     }
+  }
+
+  @Get('/tools')
+  tools() {
+    return MCP_TOOLS;
   }
 }
