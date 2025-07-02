@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Order } from '../database/entities/order.entity';
 import { OrderItem } from '../database/entities/order-item.entity';
 import { Cart } from '../cart/cart.service';
@@ -18,9 +18,20 @@ export class OrdersService {
   /** Convert a cart into an order and persist it */
   async place(userId: string, cart: Cart) {
     // look up prices to keep them immutable
-    const books = await this.bookRepo.findByIds(
-      cart.items.map((i) => i.bookId),
-    );
+    const books = await this.bookRepo.findBy({
+      id: In(cart.items.map((i) => i.bookId)),
+    });
+
+    const outOfStock = cart.items.filter((ci) => {
+      const book = books.find((b) => b.id === ci.bookId);
+      return !book || book.stock < ci.quantity;
+    });
+
+    if (outOfStock.length > 0) {
+      throw new Error(
+        `Out of stock: ${outOfStock.map((i) => i.bookId).join(', ')}`,
+      );
+    }
 
     const order = this.orderRepo.create({
       userId,
@@ -33,7 +44,17 @@ export class OrdersService {
         });
       }),
     });
-    return this.orderRepo.save(order);
+
+    books.forEach((book) => {
+      book.stock -= cart.items.find((i) => i.bookId === book.id)?.quantity ?? 0;
+    });
+
+    const [result] = await Promise.all([
+      this.orderRepo.save(order),
+      this.bookRepo.save(books),
+    ]);
+
+    return result;
   }
 
   /** Paginated list of a user’s orders */

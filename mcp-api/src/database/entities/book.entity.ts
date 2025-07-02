@@ -7,6 +7,9 @@ export class Book {
   @Column() title!: string;
   @Column('text') description!: string;
   @Column('int') price!: number;
+  @Column() genre!: string;
+  @Column('date') publishedDate!: Date;
+  @Column('int', { default: 0 }) stock!: number;
 
   @ManyToOne(() => Author, (author) => author.books, { eager: true })
   author!: Author;

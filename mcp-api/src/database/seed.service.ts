@@ -19,7 +19,7 @@ export class SeedService {
         await this.authorRepo.save(
           this.authorRepo.create({
             name: faker.person.fullName(),
-            bio: faker.lorem.paragraph(),
+            bio: faker.person.bio(),
           }),
         ),
       );
@@ -27,10 +27,13 @@ export class SeedService {
     for (let i = 0; i < 250; i++) {
       await this.bookRepo.save(
         this.bookRepo.create({
-          title: faker.lorem.words({ min: 2, max: 5 }),
+          title: faker.book.title(),
           description: faker.lorem.paragraphs({ min: 1, max: 3 }),
           price: faker.number.int({ min: 5, max: 50 }),
           author: authors[faker.number.int({ min: 0, max: 49 })],
+          genre: faker.book.genre(),
+          publishedDate: faker.date.past(),
+          stock: faker.number.int({ min: 0, max: 100 }),
         }),
       );
     }

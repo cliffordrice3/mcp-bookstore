@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Book } from '../database/entities/book.entity';
 
 @Injectable()
@@ -14,6 +14,9 @@ export class BooksService {
       skip: (page - 1) * size,
       take: size,
       order: { title: 'ASC' },
+      where: {
+        stock: MoreThan(0), // only show books in stock
+      },
     });
     return { page, size, total, data };
   }
