@@ -7,7 +7,7 @@ A simple web-based assistant that uses the OpenAI SDK to interact with the MCP A
 Install dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 Set your `OPENAI_API_KEY` environment variable. Optional variables:
@@ -20,5 +20,5 @@ Set your `OPENAI_API_KEY` environment variable. Optional variables:
 Start the agent and open `http://localhost:3001` in your browser:
 
 ```bash
-npm start
+yarn start
 ```

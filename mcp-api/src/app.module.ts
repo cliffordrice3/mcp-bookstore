@@ -1,12 +1,14 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { BooksModule } from './books/books.module';
 import { AuthorsModule } from './authors/authors.module';
-import { OrdersModule } from './orders/orders.module';
+import { BooksModule } from './books/books.module';
 import { CartModule } from './cart/cart.module';
-import { McpModule } from './mcp/mcp.module';
+import { Author } from './database/entities/author.entity';
+import { Book } from './database/entities/book.entity';
 import { SeedService } from './database/seed.service';
+import { McpModule } from './mcp/mcp.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { SeedService } from './database/seed.service';
         dropSchema: true,
       }),
     }),
+    TypeOrmModule.forFeature([Author, Book]),
     AuthModule,
     BooksModule,
     AuthorsModule,

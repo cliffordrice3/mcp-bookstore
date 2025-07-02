@@ -13,7 +13,7 @@ This repository contains a demo bookstore API and a small agent that interacts w
 
 ```bash
 cd mcp-api && yarn install
-cd ../mcp-agent && npm install
+cd ../mcp-agent && yarn install
 ```
 
 2. Start the API server:
@@ -27,7 +27,7 @@ yarn start:dev
 
 ```bash
 cd mcp-agent
-npm start
+yarn start
 ```
 
 The demo user credentials are `demo` / `demo`.
