@@ -3,6 +3,8 @@ import fetch from 'node-fetch';
 import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import os from 'os';
 
 const apiUrl = process.env.MCP_API_URL || 'http://localhost:3000';
 const username = process.env.MCP_USER || 'demo';
@@ -10,6 +12,45 @@ const password = process.env.MCP_PASS || 'demo';
 const port = Number(process.env.PORT || 3001);
 
 const openai = new OpenAI();
+
+const historyPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../history.jsonl');
+
+function loadHistory(): any[] {
+  if (!fs.existsSync(historyPath)) return [];
+  const lines = fs.readFileSync(historyPath, 'utf8').split(/\n+/).filter(Boolean);
+  const entries: any[] = [];
+  for (const line of lines) {
+    try { entries.push(JSON.parse(line)); } catch {}
+  }
+  return entries;
+}
+
+function appendHistory(entry: any) {
+  fs.appendFileSync(historyPath, JSON.stringify(entry) + os.EOL);
+}
+
+function tokenize(text: string): string[] {
+  return text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+}
+
+function jaccard(a: string[], b: string[]): number {
+  const setA = new Set(a);
+  const setB = new Set(b);
+  let inter = 0;
+  for (const t of setA) if (setB.has(t)) inter++;
+  const union = new Set([...setA, ...setB]).size;
+  return union ? inter / union : 0;
+}
+
+function retrieveRelevantHistory(query: string, records: any[], limit = 3): any[] {
+  const qTokens = tokenize(query);
+  const scored = records.map(r => ({ r, score: jaccard(qTokens, tokenize(r.content || '')) }));
+  return scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(s => s.r);
+}
 
 async function login(): Promise<string> {
   const res = await fetch(`${apiUrl}/auth/login`, {
@@ -77,20 +118,31 @@ async function main() {
   const messages: any[] = [
     { role: 'system', content: 'You are a helpful bookstore assistant with access to a bookstore API. Use the bookstore API and internal chat state to answer any user questions about books or authors.' }
   ];
+  messages.push(...loadHistory());
+
+  const maxHistory = 10;
 
   app.post('/chat', async (req: Request, res: Response) => {
     const userInput = (req.body.message || '').toString();
     if (!userInput) return res.status(400).json({ error: 'message required' });
-    messages.push({ role: 'user', content: userInput });
+    const userMsg = { role: 'user', content: userInput } as any;
+    messages.push(userMsg);
+    appendHistory(userMsg);
+
+    const recent = messages.slice(-maxHistory);
+    const older = messages.slice(1, -maxHistory);
+    const retrieved = retrieveRelevantHistory(userInput, older);
+    const sendMessages = [messages[0], ...retrieved, ...recent.slice(1)];
 
     let response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo-1106',
-      messages,
+      messages: sendMessages,
       tools,
       tool_choice: 'auto'
     });
     let message = response.choices[0].message;
     messages.push(message);
+    appendHistory(message);
 
     while (message.tool_calls) {
       for (const call of message.tool_calls) {
@@ -101,18 +153,22 @@ async function main() {
         } catch (e: any) {
           result = { error: e.message };
         }
-        messages.push({
-          role: 'tool',
-          tool_call_id: call.id,
-          content: JSON.stringify(result)
-        });
+        const toolMsg = { role: 'tool', tool_call_id: call.id, content: JSON.stringify(result) };
+        messages.push(toolMsg);
+        appendHistory(toolMsg);
       }
+      const recent2 = messages.slice(-maxHistory);
+      const older2 = messages.slice(1, -maxHistory);
+      const retrieved2 = retrieveRelevantHistory(userInput, older2);
+      const sendMessages2 = [messages[0], ...retrieved2, ...recent2.slice(1)];
+
       response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo-1106',
-        messages
+        messages: sendMessages2
       });
       message = response.choices[0].message;
       messages.push(message);
+      appendHistory(message);
     }
 
     res.json({ reply: message.content.trim() });
