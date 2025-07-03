@@ -32,7 +32,7 @@ async function callRpc(token: string, method: string, params: Record<string, unk
     },
     body: JSON.stringify(payload)
   });
-  const data = await res.json();
+  const data = await res.json() as ({ result?: any; error?: { message: string } });
   if (data.error) throw new Error(data.error.message);
   return data.result;
 }
@@ -75,7 +75,7 @@ async function main() {
   app.use(express.static(path.join(__dirname, '../public')));
 
   const messages: any[] = [
-    { role: 'system', content: 'You are a helpful bookstore assistant.' }
+    { role: 'system', content: 'You are a helpful bookstore assistant with access to a bookstore API. Use the bookstore API and internal chat state to answer any user questions about books or authors.' }
   ];
 
   app.post('/chat', async (req: Request, res: Response) => {
