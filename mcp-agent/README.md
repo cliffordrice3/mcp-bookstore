@@ -1,6 +1,6 @@
 # MCP Agent
 
-A simple web-based assistant that uses the OpenAI SDK to interact with the MCP API.
+A TypeScript and React based assistant that uses the OpenAI SDK to interact with the MCP API.
 
 ## Setup
 
@@ -17,8 +17,17 @@ Set your `OPENAI_API_KEY` environment variable. Optional variables:
 
 ## Usage
 
-Start the agent and open `http://localhost:3001` in your browser:
+During development run the server with `ts-node` and the React app with Vite:
 
 ```bash
+yarn dev
+```
+
+To build the project and start the compiled server and client:
+
+```bash
+yarn build
 yarn start
 ```
+
+Open `http://localhost:3001` in your browser to use the chat.
