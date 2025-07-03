@@ -44,12 +44,22 @@ function jaccard(a: string[], b: string[]): number {
 
 function retrieveRelevantHistory(query: string, records: any[], limit = 3): any[] {
   const qTokens = tokenize(query);
-  const scored = records.map(r => ({ r, score: jaccard(qTokens, tokenize(r.content || '')) }));
+  const scored = records
+    .filter(r => r.role !== 'tool' && !(r.role === 'assistant' && r.tool_calls))
+    .map(r => ({ r, score: jaccard(qTokens, tokenize(r.content || '')) }));
   return scored
     .filter(s => s.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map(s => s.r);
+}
+
+function recentMessages(messages: any[], limit: number): any[] {
+  let start = Math.max(messages.length - limit, 1);
+  while (start > 1 && messages[start].role === 'tool') {
+    start -= 1;
+  }
+  return messages.slice(start);
 }
 
 async function login(): Promise<string> {
@@ -129,8 +139,8 @@ async function main() {
     messages.push(userMsg);
     appendHistory(userMsg);
 
-    const recent = messages.slice(-maxHistory);
-    const older = messages.slice(1, -maxHistory);
+    const recent = recentMessages(messages, maxHistory);
+    const older = messages.slice(1, messages.length - recent.length);
     const retrieved = retrieveRelevantHistory(userInput, older);
     const sendMessages = [messages[0], ...retrieved, ...recent.slice(1)];
 
@@ -157,8 +167,8 @@ async function main() {
         messages.push(toolMsg);
         appendHistory(toolMsg);
       }
-      const recent2 = messages.slice(-maxHistory);
-      const older2 = messages.slice(1, -maxHistory);
+      const recent2 = recentMessages(messages, maxHistory);
+      const older2 = messages.slice(1, messages.length - recent2.length);
       const retrieved2 = retrieveRelevantHistory(userInput, older2);
       const sendMessages2 = [messages[0], ...retrieved2, ...recent2.slice(1)];
 
