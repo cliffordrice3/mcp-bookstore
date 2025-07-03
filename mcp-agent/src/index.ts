@@ -71,7 +71,8 @@ async function main() {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const app = express();
   app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
+  // serve the built client files from ../public relative to this file
+  app.use(express.static(path.join(__dirname, '../public')));
 
   const messages: any[] = [
     { role: 'system', content: 'You are a helpful bookstore assistant.' }
