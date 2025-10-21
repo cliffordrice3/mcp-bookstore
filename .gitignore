@@ -57,3 +57,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Test coverage
 coverage/
+mcp-agent/history.jsonl
